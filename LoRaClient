@@ -16,14 +16,16 @@
 #include "DHT.h" // YOU NEED THE ADAFRUIT DHT LIBRARY (https://github.com/adafruit/DHT-sensor-library) TO WORK 
 
 // DHT
-#define DHTPIN A0
+#define DHTPIN 3
 #define DHTTYPE DHT22
 DHT dht(DHTPIN, DHTTYPE);
 
 // Singleton instance of the radio driver
 RH_RF95 rf95;
 float frequency = 433.0;
-
+float vPow = 5.0;
+float r1 = 10000;
+float r2 = 1000;
 void setup()
 {
   Serial.begin(9600);
@@ -31,6 +33,7 @@ void setup()
   Serial.println("Start LoRa Client");
   if (!rf95.init())
     Serial.println("init failed");
+  // Setting up the LoRa shield to be the same setting as the Dragino Frequency, dBm, Spreading factor, Bandwidth, Coding Rate  
   // Setup ISM frequency
   rf95.setFrequency(frequency);
   // Setup Power,dBm
@@ -55,18 +58,21 @@ void loop()
   delay(2000); // Wait a few seconds between measurements, minimum 2000ms
   float h = dht.readHumidity();
   float t = dht.readTemperature();
-
+  float v = (analogRead(0) * vPow) / 1023.0;
+  float v2 = v / (r2 / (r1 + r2));
   if (isnan(h) || isnan(t))
   {
     Serial.println("Failed to read from DHT sensor!");
     return;
   }
-
-  // Creates a payload that looks like "25.6,70.5", temperature first, humidity second
+  
+  // Creates a payload that looks like "25.6,70.5,3.3", temperature first, humidity second, Voltage third
   String tmp_buf = String(t);
   String hum_buf = String(h);
+  String volt_buf = String(v2);
   String payload = tmp_buf + ",";
-  payload = payload + hum_buf;
+  payload = payload + hum_buf + ",";
+  payload = payload + volt_buf;
 
   Serial.println(payload);
 
