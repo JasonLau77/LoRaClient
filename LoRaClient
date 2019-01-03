@@ -33,7 +33,7 @@ void setup()
   Serial.println("Start LoRa Client");
   if (!rf95.init())
     Serial.println("init failed");
-  // Setting up the LoRa shield to be the same setting as the Dragino Frequency, dBm, Spreading factor, Bandwidth, Coding Rate  
+  // Setting up the LoRa shield to be the same setting as the Dragino Frequency, dBm, Spreading factor, Bandwidth and Coding Rate  
   // Setup ISM frequency
   rf95.setFrequency(frequency);
   // Setup Power,dBm
@@ -58,6 +58,7 @@ void loop()
   delay(2000); // Wait a few seconds between measurements, minimum 2000ms
   float h = dht.readHumidity();
   float t = dht.readTemperature();
+  // Setup Voltmeter 
   float v = (analogRead(0) * vPow) / 1023.0;
   float v2 = v / (r2 / (r1 + r2));
   if (isnan(h) || isnan(t))
